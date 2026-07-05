@@ -1,8 +1,8 @@
 import discord from discord.ext import commands from discord import
 app_commands
 
-FOOTER = “Zero Gravity Community © 2026” ANNOUNCEMENT_CHANNEL_ID =
-1523033447587643522
+FOOTER = "Zero Gravity Community © 2026"
+ANNOUNCEMENT_CHANNEL_ID = 1523033447587643522
 
 CATEGORY_DATA = { “important”: { “title”: “🔴 IMPORTANT ANNOUNCEMENT”,
 “color”: discord.Color.red(), “emoji”: “🔴” }, “tournament”: { “title”:

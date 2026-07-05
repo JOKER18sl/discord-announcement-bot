@@ -17,14 +17,21 @@ class Announce(commands.Cog):
     @app_commands.describe(
         title="Announcement title",
         description="Announcement description",
-        image="Upload background/banner image (Optional)",
-        ping="Choose ping type"
+        ping="Choose ping type",
+        color="Choose embed color",
+        image="Upload background/banner image (Optional)"
     )
     @app_commands.choices(
         ping=[
             app_commands.Choice(name="@everyone", value="everyone"),
             app_commands.Choice(name="@here", value="here"),
             app_commands.Choice(name="No Ping", value="none"),
+        ],
+        color=[
+            app_commands.Choice(name="Gold", value="gold"),
+            app_commands.Choice(name="Red", value="red"),
+            app_commands.Choice(name="Blue", value="blue"),
+            app_commands.Choice(name="Green", value="green"),
         ]
     )
     @app_commands.checks.has_permissions(administrator=True)
@@ -34,6 +41,7 @@ class Announce(commands.Cog):
         title: str,
         description: str,
         ping: app_commands.Choice[str],
+        color: app_commands.Choice[str],
         image: discord.Attachment = None
     ):
         channel = self.bot.get_channel(ANNOUNCEMENT_CHANNEL_ID)
@@ -51,6 +59,13 @@ class Announce(commands.Cog):
             "none": ""
         }[ping.value]
 
+        color_map = {
+            "gold": discord.Color.gold(),
+            "red": discord.Color.red(),
+            "blue": discord.Color.blue(),
+            "green": discord.Color.green(),
+        }
+
         embed = discord.Embed(
             title=f"📢✨ {title}",
             description=(
@@ -58,7 +73,7 @@ class Announce(commands.Cog):
                 "━━━━━━━━━━━━━━━━━━━━━━\n"
                 "🚀 **No Limits • No Boundaries • Just Gravity**"
             ),
-            color=discord.Color.gold()
+            color=color_map[color.value]
         )
 
         if image:
@@ -92,16 +107,10 @@ class Announce(commands.Cog):
         interaction: discord.Interaction,
         error: app_commands.AppCommandError
     ):
-        if isinstance(error, app_commands.MissingPermissions):
-            await interaction.response.send_message(
-                "❌ You need Administrator permission to use this command.",
-                ephemeral=True
-            )
-        else:
-            await interaction.response.send_message(
-                f"❌ Error: {error}",
-                ephemeral=True
-            )
+        await interaction.response.send_message(
+            f"❌ Error: {error}",
+            ephemeral=True
+        )
 
 
 async def setup(bot):

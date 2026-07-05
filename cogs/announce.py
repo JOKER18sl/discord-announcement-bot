@@ -17,7 +17,15 @@ class Announce(commands.Cog):
     @app_commands.describe(
         title="Announcement title",
         description="Announcement description",
-        image="Image URL (Optional)"
+        image="Upload background/banner image (Optional)",
+        ping="Choose ping type"
+    )
+    @app_commands.choices(
+        ping=[
+            app_commands.Choice(name="@everyone", value="everyone"),
+            app_commands.Choice(name="@here", value="here"),
+            app_commands.Choice(name="No Ping", value="none"),
+        ]
     )
     @app_commands.checks.has_permissions(administrator=True)
     async def announce(
@@ -25,9 +33,9 @@ class Announce(commands.Cog):
         interaction: discord.Interaction,
         title: str,
         description: str,
-        image: str = None
+        ping: app_commands.Choice[str],
+        image: discord.Attachment = None
     ):
-
         channel = self.bot.get_channel(ANNOUNCEMENT_CHANNEL_ID)
 
         if channel is None:
@@ -37,28 +45,39 @@ class Announce(commands.Cog):
             )
             return
 
+        ping_text = {
+            "everyone": "@everyone",
+            "here": "@here",
+            "none": ""
+        }[ping.value]
+
         embed = discord.Embed(
-            title=f"📢 {title}",
-            description=f"✨ {description}",
+            title=f"📢✨ {title}",
+            description=(
+                f"✨ {description}\n\n"
+                "━━━━━━━━━━━━━━━━━━━━━━\n"
+                "🚀 **No Limits • No Boundaries • Just Gravity**"
+            ),
             color=discord.Color.gold()
         )
 
         if image:
-            embed.set_image(url=image)
+            embed.set_image(url=image.url)
 
-        if interaction.guild.icon:
+        if interaction.guild and interaction.guild.icon:
             embed.set_thumbnail(url=interaction.guild.icon.url)
-
-        embed.set_author(
-            name="Zero Gravity Community",
-            icon_url=interaction.guild.icon.url if interaction.guild.icon else None
-        )
+            embed.set_author(
+                name="Zero Gravity Community",
+                icon_url=interaction.guild.icon.url
+            )
+        else:
+            embed.set_author(name="Zero Gravity Community")
 
         embed.set_footer(text=FOOTER)
         embed.timestamp = discord.utils.utcnow()
 
         await channel.send(
-            content="@everyone",
+            content=ping_text,
             embed=embed
         )
 
@@ -66,6 +85,23 @@ class Announce(commands.Cog):
             "✅ Announcement sent successfully!",
             ephemeral=True
         )
+
+    @announce.error
+    async def announce_error(
+        self,
+        interaction: discord.Interaction,
+        error: app_commands.AppCommandError
+    ):
+        if isinstance(error, app_commands.MissingPermissions):
+            await interaction.response.send_message(
+                "❌ You need Administrator permission to use this command.",
+                ephemeral=True
+            )
+        else:
+            await interaction.response.send_message(
+                f"❌ Error: {error}",
+                ephemeral=True
+            )
 
 
 async def setup(bot):

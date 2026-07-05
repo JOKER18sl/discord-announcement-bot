@@ -24,4 +24,14 @@ async def on_ready():
 async def ping(interaction: discord.Interaction):
     await interaction.response.send_message("🏓 Pong!", ephemeral=True)
 
-bot.run(TOKEN)
+import asyncio
+
+async def load_extensions():
+    await bot.load_extension("cogs.announce")
+
+async def main():
+    async with bot:
+        await load_extensions()
+        await bot.start(TOKEN)
+
+asyncio.run(main())

@@ -1,43 +1,19 @@
-import discord
-from discord.ext import commands
-from discord import app_commands
+import discord from discord.ext import commands from discord import
+app_commands
 
-FOOTER = "Zero Gravity Community © 2026"
-ANNOUNCEMENT_CHANNEL_ID = 1523033447587643522
+FOOTER = “Zero Gravity Community © 2026” ANNOUNCEMENT_CHANNEL_ID =
+1523033447587643522
 
+CATEGORY_DATA = { “important”: { “title”: “🔴 IMPORTANT ANNOUNCEMENT”,
+“color”: discord.Color.red(), “emoji”: “🔴” }, “tournament”: { “title”:
+“🏆 TOURNAMENT ANNOUNCEMENT”, “color”: discord.Color.gold(), “emoji”:
+“🏆” }, “event”: { “title”: “🎉 EVENT ANNOUNCEMENT”, “color”:
+discord.Color.blue(), “emoji”: “🎉” }, “giveaway”: { “title”: “🎁
+GIVEAWAY ANNOUNCEMENT”, “color”: discord.Color.green(), “emoji”: “🎁” },
+“update”: { “title”: “🛠️ SERVER UPDATE”, “color”:
+discord.Color.orange(), “emoji”: “🛠️” } }
 
-CATEGORY_DATA = {
-    "important": {
-        "title": "🔴 IMPORTANT ANNOUNCEMENT",
-        "color": discord.Color.red(),
-        "emoji": "🔴"
-    },
-    "tournament": {
-        "title": "🏆 TOURNAMENT ANNOUNCEMENT",
-        "color": discord.Color.gold(),
-        "emoji": "🏆"
-    },
-    "event": {
-        "title": "🎉 EVENT ANNOUNCEMENT",
-        "color": discord.Color.blue(),
-        "emoji": "🎉"
-    },
-    "giveaway": {
-        "title": "🎁 GIVEAWAY ANNOUNCEMENT",
-        "color": discord.Color.green(),
-        "emoji": "🎁"
-    },
-    "update": {
-        "title": "🛠️ SERVER UPDATE",
-        "color": discord.Color.orange(),
-        "emoji": "🛠️"
-    }
-}
-
-
-class Announce(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
+class Announce(commands.Cog): def init(self, bot): self.bot = bot
 
     @app_commands.command(
         name="announce",
@@ -74,7 +50,9 @@ class Announce(commands.Cog):
         ping: app_commands.Choice[str],
         image: discord.Attachment = None
     ):
-                channel = self.bot.get_channel(ANNOUNCEMENT_CHANNEL_ID)
+
+
+        channel = self.bot.get_channel(ANNOUNCEMENT_CHANNEL_ID)
 
         if channel is None:
             await interaction.response.send_message(
@@ -143,6 +121,4 @@ class Announce(commands.Cog):
         else:
             await interaction.response.send_message(message, ephemeral=True)
 
-
-async def setup(bot):
-    await bot.add_cog(Announce(bot))
+async def setup(bot): await bot.add_cog(Announce(bot))

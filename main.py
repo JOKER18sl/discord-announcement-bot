@@ -1,4 +1,5 @@
 import os
+import asyncio
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -12,6 +13,10 @@ intents.guilds = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 
+async def load_extensions():
+    await bot.load_extension("cogs.announce")
+
+
 @bot.event
 async def on_ready():
     print(f"✅ Logged in as {bot.user}")
@@ -19,45 +24,28 @@ async def on_ready():
     try:
         synced = await bot.tree.sync()
         print(f"✅ Synced {len(synced)} commands")
+        for cmd in synced:
+            print(f"➡️ /{cmd.name}")
     except Exception as e:
-        print(e)
+        print(f"❌ Sync error: {e}")
 
 
 @bot.tree.command(name="ping", description="Check if the bot is online")
 async def ping(interaction: discord.Interaction):
     await interaction.response.send_message(
-        f"🏓 Pong! {round(bot.latency * 1000)}ms"
+        f"🏓 Pong! {round(bot.latency * 1000)}ms",
+        ephemeral=True
     )
 
 
-@bot.tree.command(
-    name="announce",
-    description="Send an announcement"
-)
-@app_commands.checks.has_permissions(administrator=True)
-@app_commands.describe(
-    title="Announcement Title",
-    message="Announcement Message"
-)
-async def announce(
-    interaction: discord.Interaction,
-    title: str,
-    message: str
-):
+async def main():
+    if TOKEN is None:
+        print("❌ TOKEN environment variable not found!")
+        return
 
-    embed = discord.Embed(
-        title=f"📢 {title}",
-        description=message,
-        color=discord.Color.gold()
-    )
-
-    embed.set_footer(text="Zero Gravity Community © 2026")
-    embed.timestamp = discord.utils.utcnow()
-
-    await interaction.response.send_message(
-        content="@everyone",
-        embed=embed
-    )
+    async with bot:
+        await load_extensions()
+        await bot.start(TOKEN)
 
 
-bot.run(TOKEN)
+asyncio.run(main())

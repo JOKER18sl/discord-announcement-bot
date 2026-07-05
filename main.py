@@ -9,7 +9,8 @@ intents.message_content = True
 intents.guilds = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
-
+async def load_extensions():
+    await bot.load_extension("cogs.announce")
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")

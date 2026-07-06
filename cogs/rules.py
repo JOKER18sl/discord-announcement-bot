@@ -78,7 +78,11 @@ class Rules(commands.Cog):
         embed.set_footer(text=FOOTER)
         embed.timestamp = discord.utils.utcnow()
 
-        await channel.send(embed=embed)
+        await channel.send(
+    content="@everyone",
+    embed=embed,
+    allowed_mentions=discord.AllowedMentions(everyone=True)
+)
 
         await interaction.response.send_message(
             "✅ Rules posted successfully!",

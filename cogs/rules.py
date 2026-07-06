@@ -16,6 +16,7 @@ class Rules(commands.Cog):
     )
     @app_commands.checks.has_permissions(administrator=True)
     async def rules(self, interaction: discord.Interaction):
+
         channel = self.bot.get_channel(RULES_CHANNEL_ID)
 
         if channel is None:
@@ -30,35 +31,36 @@ class Rules(commands.Cog):
             description=(
                 "# ⚖️ Server Rules\n\n"
                 "━━━━━━━━━━━━━━━━━━━━━━\n\n"
+
                 "1️⃣ **Respect Everyone**\n"
-                "Be kind to all members. No harassment, hate speech, or personal attacks.\n\n"
+                "Treat everyone with respect. Harassment, hate speech, or personal attacks are not allowed.\n\n"
 
                 "2️⃣ **No Toxicity**\n"
-                "Keep the community friendly. Toxic behavior is not allowed.\n\n"
+                "Keep the community friendly and positive.\n\n"
 
                 "3️⃣ **No Spam**\n"
-                "Do not spam messages, emojis, mentions, links, or images.\n\n"
+                "Avoid spam, excessive mentions, or repeated messages.\n\n"
 
                 "4️⃣ **No NSFW Content**\n"
-                "Adult, violent, or inappropriate content is not allowed.\n\n"
+                "Adult or inappropriate content is strictly prohibited.\n\n"
 
                 "5️⃣ **No Advertising**\n"
-                "Do not promote servers, links, pages, or channels without staff permission.\n\n"
+                "Do not advertise other servers, channels, or websites without permission.\n\n"
 
-                "6️⃣ **Use Correct Channels**\n"
-                "Post content in the correct channel to keep the server clean.\n\n"
+                "6️⃣ **Use The Correct Channels**\n"
+                "Keep discussions in their appropriate channels.\n\n"
 
-                "7️⃣ **No Cheats or Hacks**\n"
-                "Cheats, hacks, cracked tools, or illegal game content are not allowed.\n\n"
+                "7️⃣ **No Cheats Or Hacks**\n"
+                "Sharing cheats, hacks, or illegal software is forbidden.\n\n"
 
-                "8️⃣ **Follow Staff Instructions**\n"
-                "Admins and moderators have the final decision in server matters.\n\n"
+                "8️⃣ **Respect Staff Decisions**\n"
+                "Moderators and admins have the final decision.\n\n"
 
                 "9️⃣ **Protect Privacy**\n"
-                "Do not share anyone’s personal information without permission.\n\n"
+                "Never share anyone's personal information.\n\n"
 
-                "🔟 **Enjoy the Community**\n"
-                "Have fun, make friends, and keep Zero Gravity positive.\n\n"
+                "🔟 **Have Fun**\n"
+                "Enjoy the community and help make it a great place.\n\n"
 
                 "━━━━━━━━━━━━━━━━━━━━━━\n"
                 "🚀 **No Limits • No Boundaries • Just Gravity**"
@@ -79,13 +81,13 @@ class Rules(commands.Cog):
         embed.timestamp = discord.utils.utcnow()
 
         await channel.send(
-    content="@everyone",
-    embed=embed,
-    allowed_mentions=discord.AllowedMentions(everyone=True)
-)
+            content="@everyone",
+            embed=embed,
+            allowed_mentions=discord.AllowedMentions(everyone=True)
+        )
 
         await interaction.response.send_message(
-            "✅ Rules posted successfully!",
+            "✅ Rules have been posted successfully!",
             ephemeral=True
         )
 

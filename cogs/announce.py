@@ -90,26 +90,6 @@ class Announce(commands.Cog):
             "none": ""
         }[ping.value]
 
-        embed_description = (
-            f"# {data['emoji']} {title}\n\n"
-            "━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            f"{description}\n\n"
-            "━━━━━━━━━━━━━━━━━━━━━━\n"
-            "### 🎮 What you can find here\n"
-            "🎯 **Gaming Community**\n"
-            "🎬 **Movie Nights & Watch Parties**\n"
-            "🎵 **Music, Memes & Chill Talks**\n"
-            "🎁 **Events, Giveaways & Updates**\n\n"
-            "━━━━━━━━━━━━━━━━━━━━━━\n"
-            "### 📌 Before you start\n"
-            "📖 **Read the rules**\n"
-            "🎭 **Pick your roles**\n"
-            "👋 **Say hello in welcome chat**\n"
-            "💬 **Join the conversation**\n\n"
-            "━━━━━━━━━━━━━━━━━━━━━━\n"
-            "🚀 **No Limits • No Boundaries • Just Gravity**"
-        )
-
         embed = discord.Embed(
             title=f"━━━━━━━━━━━━━━━━\n{data['title']}\n━━━━━━━━━━━━━━━━",
             description=embed_description,

@@ -1,52 +1,126 @@
 import os
 import asyncio
 import discord
+
 from discord.ext import commands
-from discord import app_commands
+from dotenv import load_dotenv
 
-TOKEN = os.getenv("TOKEN")
 
+# Load variables from the .env file
+load_dotenv()
+
+TOKEN = os.getenv("DISCORD_TOKEN")
+
+
+# Bot intents
 intents = discord.Intents.default()
-intents.message_content = True
 intents.guilds = True
-
-bot = commands.Bot(command_prefix="!", intents=intents)
-
-
-async def load_extensions():
-    await bot.load_extension("cogs.announce")
-    await bot.load_extension("cogs.rules")
+intents.members = True
+intents.message_content = True
 
 
-@bot.event
-async def on_ready():
-    print(f"✅ Logged in as {bot.user}")
+class ZeroGravityBot(commands.Bot):
+    def __init__(self):
+        super().__init__(
+            command_prefix="!",
+            intents=intents,
+            help_command=None
+        )
 
-    try:
-        synced = await bot.tree.sync()
-        print(f"✅ Synced {len(synced)} commands")
-        for cmd in synced:
-            print(f"➡️ /{cmd.name}")
-    except Exception as e:
-        print(f"❌ Sync error: {e}")
+    async def setup_hook(self):
+        """
+        Loads all Cog files when the bot starts
+        and synchronizes slash commands.
+        """
+
+        extensions = [
+            "cogs.rules",
+            "cogs.announcement",
+            "cogs.information"
+        ]
+
+        for extension in extensions:
+            try:
+                await self.load_extension(extension)
+                print(f"✅ Loaded extension: {extension}")
+
+            except commands.ExtensionAlreadyLoaded:
+                print(f"⚠️ Extension already loaded: {extension}")
+
+            except commands.ExtensionNotFound:
+                print(f"❌ Extension not found: {extension}")
+
+            except commands.NoEntryPointError:
+                print(
+                    f"❌ setup() function not found in: {extension}"
+                )
+
+            except commands.ExtensionFailed as error:
+                print(
+                    f"❌ Failed to load {extension}: {error}"
+                )
+
+        try:
+            synced_commands = await self.tree.sync()
+
+            print(
+                f"✅ Synced {len(synced_commands)} slash command(s)"
+            )
+
+        except Exception as error:
+            print(f"❌ Failed to sync commands: {error}")
+
+    async def on_ready(self):
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        print(f"✅ Bot online as: {self.user}")
+        print(f"🆔 Bot ID: {self.user.id}")
+        print(f"🌐 Connected servers: {len(self.guilds)}")
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+        activity = discord.Activity(
+            type=discord.ActivityType.watching,
+            name="Zero Gravity Community"
+        )
+
+        await self.change_presence(
+            status=discord.Status.online,
+            activity=activity
+        )
+
+    async def on_command_error(
+        self,
+        context: commands.Context,
+        error: commands.CommandError
+    ):
+        if isinstance(error, commands.CommandNotFound):
+            return
+
+        print(f"❌ Prefix command error: {error}")
 
 
-@bot.tree.command(name="ping", description="Check if the bot is online")
-async def ping(interaction: discord.Interaction):
-    await interaction.response.send_message(
-        f"🏓 Pong! {round(bot.latency * 1000)}ms",
-        ephemeral=True
-    )
+bot = ZeroGravityBot()
 
 
 async def main():
-    if TOKEN is None:
-        print("❌ TOKEN environment variable not found!")
+    if not TOKEN:
+        print("❌ DISCORD_TOKEN was not found in the .env file.")
+        print("Create a .env file and add:")
+        print("DISCORD_TOKEN=YOUR_BOT_TOKEN")
         return
 
-    async with bot:
-        await load_extensions()
-        await bot.start(TOKEN)
+    try:
+        async with bot:
+            await bot.start(TOKEN)
+
+    except discord.LoginFailure:
+        print("❌ Invalid Discord bot token.")
+
+    except KeyboardInterrupt:
+        print("🛑 Bot stopped manually.")
+
+    except Exception as error:
+        print(f"❌ Bot startup error: {error}")
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())

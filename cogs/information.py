@@ -6,7 +6,7 @@ from discord import app_commands
 # CONFIG
 # ===========================
 
-INFORMATION_CHANNEL_ID = 123456789012345678  # <-- Replace with your Information Channel ID
+INFORMATION_CHANNEL_ID = 1522566152520208419  # <-- Replace with your Information Channel ID
 
 FOOTER = "Zero Gravity Community © 2026"
 

@@ -2,125 +2,118 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-FOOTER = "Zero Gravity Community © 2026"
+
+# Announcement channel ID
 ANNOUNCEMENT_CHANNEL_ID = 1523033447587643522
 
-CATEGORY_DATA = {
-    "important": {
-        "title": "🔴 IMPORTANT ANNOUNCEMENT",
-        "color": discord.Color.red(),
-        "emoji": "🔴"
-    },
-    "tournament": {
-        "title": "🏆 TOURNAMENT ANNOUNCEMENT",
-        "color": discord.Color.gold(),
-        "emoji": "🏆"
-    },
-    "event": {
-        "title": "🎉 EVENT ANNOUNCEMENT",
-        "color": discord.Color.blue(),
-        "emoji": "🎉"
-    },
-    "giveaway": {
-        "title": "🎁 GIVEAWAY ANNOUNCEMENT",
-        "color": discord.Color.green(),
-        "emoji": "🎁"
-    },
-    "update": {
-        "title": "🛠️ SERVER UPDATE",
-        "color": discord.Color.orange(),
-        "emoji": "🛠️"
-    }
-}
+# Footer text
+FOOTER = "Zero Gravity Community © 2026"
 
 
-class Announce(commands.Cog):
-    def __init__(self, bot):
+class Announcement(commands.Cog):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @app_commands.command(
         name="announce",
-        description="Create a professional announcement"
+        description="Send an announcement to the announcement channel"
     )
     @app_commands.describe(
         title="Announcement title",
-        description="Announcement description",
-        category="Choose announcement category",
-        ping="Choose ping type",
-        image="Upload banner/background image (Optional)"
-    )
-    @app_commands.choices(
-        category=[
-            app_commands.Choice(name="🔴 Important", value="important"),
-            app_commands.Choice(name="🏆 Tournament", value="tournament"),
-            app_commands.Choice(name="🎉 Event", value="event"),
-            app_commands.Choice(name="🎁 Giveaway", value="giveaway"),
-            app_commands.Choice(name="🛠️ Update", value="update"),
-        ],
-        ping=[
-            app_commands.Choice(name="@everyone", value="everyone"),
-            app_commands.Choice(name="@here", value="here"),
-            app_commands.Choice(name="No Ping", value="none"),
-        ]
+        message="Announcement message"
     )
     @app_commands.checks.has_permissions(administrator=True)
     async def announce(
         self,
         interaction: discord.Interaction,
         title: str,
-        description: str,
-        category: app_commands.Choice[str],
-        ping: app_commands.Choice[str],
-        image: discord.Attachment = None
+        message: str
     ):
+        # Get announcement channel
         channel = self.bot.get_channel(ANNOUNCEMENT_CHANNEL_ID)
 
+        # Channel not found
         if channel is None:
             await interaction.response.send_message(
-                "❌ Announcement channel not found!",
+                "❌ Announcement channel not found. Please check the channel ID.",
                 ephemeral=True
             )
             return
 
-        data = CATEGORY_DATA[category.value]
-
-        ping_text = {
-            "everyone": "@everyone",
-            "here": "@here",
-            "none": ""
-        }[ping.value]
-
-        embed = discord.Embed(
-            title=f"━━━━━━━━━━━━━━━━\n{data['title']}\n━━━━━━━━━━━━━━━━",
-            description=embed_description,
-            color=data["color"]
-        )
-
-        if image:
-            embed.set_image(url=image.url)
-
-        if interaction.guild and interaction.guild.icon:
-            embed.set_author(
-                name="Zero Gravity Community",
-                icon_url=interaction.guild.icon.url
+        # Check whether it is a text channel
+        if not isinstance(channel, discord.TextChannel):
+            await interaction.response.send_message(
+                "❌ The selected channel is not a text channel.",
+                ephemeral=True
             )
-            embed.set_thumbnail(url=interaction.guild.icon.url)
-        else:
-            embed.set_author(name="Zero Gravity Community")
+            return
+
+        # Create announcement embed
+        embed = discord.Embed(
+            title=f"📢 {title}",
+            description=(
+                f"{message}\n\n"
+                "━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                "🚀 **No Limits • No Boundaries • Just Gravity**"
+            ),
+            color=discord.Color.from_rgb(88, 101, 242)
+        )
 
         embed.set_footer(text=FOOTER)
-        embed.timestamp = discord.utils.utcnow()
 
-        await channel.send(
-            content=ping_text,
-            embed=embed
-        )
+        try:
+            # Send announcement
+            await channel.send(
+                content="@everyone",
+                embed=embed,
+                allowed_mentions=discord.AllowedMentions(
+                    everyone=True,
+                    users=False,
+                    roles=False
+                )
+            )
 
-        await interaction.response.send_message(
-            "✅ Announcement sent successfully!",
-            ephemeral=True
-        )
+            await interaction.response.send_message(
+                f"✅ Announcement sent successfully to {channel.mention}.",
+                ephemeral=True
+            )
+
+        except discord.Forbidden:
+            await interaction.response.send_message(
+                "❌ The bot does not have permission to send messages in the announcement channel.",
+                ephemeral=True
+            )
+
+        except discord.HTTPException as error:
+            await interaction.response.send_message(
+                f"❌ Failed to send the announcement.\n`{error}`",
+                ephemeral=True
+            )
+
+    @announce.error
+    async def announce_error(
+        self,
+        interaction: discord.Interaction,
+        error: app_commands.AppCommandError
+    ):
+        if isinstance(error, app_commands.MissingPermissions):
+            error_message = (
+                "❌ You need Administrator permission to use this command."
+            )
+        else:
+            error_message = f"❌ An error occurred:\n`{error}`"
+
+        if interaction.response.is_done():
+            await interaction.followup.send(
+                error_message,
+                ephemeral=True
+            )
+        else:
+            await interaction.response.send_message(
+                error_message,
+                ephemeral=True
+            )
 
 
-async def setup(bot):
-    await bot.add_cog(Announce(bot))
+async def setup(bot: commands.Bot):
+    await bot.add_cog(Announcement(bot))
